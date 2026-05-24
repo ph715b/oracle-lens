@@ -1,0 +1,98 @@
+// This tells Prisma we are using PostgreSQL and where to find it
+// The DATABASE_URL comes from your .env file
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// CARD TABLE
+// Every card in the Riftbound database
+// ============================================
+model Card {
+  // ---- IDENTITY ----
+  id          String   @id                // e.g. "OGN-001"
+  slug        String   @unique            // e.g. "master-yi" (for URLs)
+  name        String                      // Full card name
+
+  // ---- SET INFO ----
+  set         String                      // Set code e.g. "OGN"
+  setName     String                      // e.g. "Origins"
+  number      String                      // e.g. "001", "120a", "T03"
+
+  // ---- CARD DETAILS ----
+  // Champion | Legend | Unit | Token | Spell | Rune | Gear | Battlefield
+  type        String
+  
+  // Fury | Calm | Mind | Body | Chaos | Order
+  // Stored as an array since cards can have multiple domains
+  domains     String[]
+
+  // Common | Uncommon | Rare | Epic | AlternateArt | Signature | Promo | Champion
+  rarity      String
+
+  // ---- COSTS ----
+  // null for Legend, Token, and Rune cards
+  energyCost  Int?                        // ? means this field is optional (can be null)
+  
+  // Power costs stored per domain
+  // null for Legend, Token, and Rune cards
+  furyPower   Int      @default(0)        // Red
+  calmPower   Int      @default(0)        // Green
+  mindPower   Int      @default(0)        // Blue
+  bodyPower   Int      @default(0)        // Orange
+  chaosPower  Int      @default(0)        // Purple
+  orderPower  Int      @default(0)        // Yellow
+  wildPower   Int      @default(0)        // Any domain
+
+  // True if card has alternate cost options (e.g. 1 Fury OR 1 Body)
+  alternateCost Boolean @default(false)
+
+  // ---- STATS ----
+  // Only Champion, Unit, and Token cards have might
+  might       Int?                        // null for non-unit types
+
+  // Only Gear cards have a mightBonus
+  mightBonus  Int?                        // Might added to attached unit
+
+  // ---- XP & LEVEL (Unleashed mechanic) ----
+  huntValue      Int?                     // X value from Hunt [X] keyword
+  levelThreshold Int?                     // N value from Level [N] keyword
+  levelAbility   String?                  // Text of ability unlocked at level
+
+  // ---- TEXT ----
+  cardText    String?                     // Full rules text
+  flavorText  String?                     // Italic lore text (not always present)
+  
+  // Keywords stored as an array e.g. ["Assault 2", "Reaction"]
+  keywords    String[]
+
+  // ---- VISUALS ----
+  imageUrl    String?                     // Cloudflare R2 URL (added later)
+  imageArtist String?                     // Illustrator credit from card
+
+  // ---- LEGALITY ----
+  legalStandard Boolean @default(true)
+  legalCasual   Boolean @default(true)
+
+  // ---- META ----
+  releasedAt  DateTime                    // Card release date
+  updatedAt   DateTime @updatedAt         // Auto-updates when card entry is changed
+  createdAt   DateTime @default(now())    // When this entry was added to the database
+}
+
+// ============================================
+// SET TABLE
+// Info about each Riftbound set/expansion
+// ============================================
+model Set {
+  code        String   @id               // e.g. "OGN"
+  name        String                     // e.g. "Origins"
+  totalCards  Int                        // Number of cards in main set
+  releasedAt  DateTime                   // Set release date
+}
