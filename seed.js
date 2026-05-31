@@ -8,55 +8,46 @@ const prisma = new PrismaClient()
 // ============================================
 const cards = [
   {
-    // ---- IDENTITY ----
-    id: "OGN-001",
-    slug: "master-yi",
-    name: "Master Yi",
+    id: "OGS-001",
+    slug: "annie-fiery",
+    name: "Annie, Fiery",
 
-    // ---- SET INFO ----
-    set: "OGN",
-    setName: "Origins",
+    set: "OGS",
+    setName: "Origins - Proving Grounds",
     number: "001",
 
-    // ---- CARD DETAILS ----
-    type: "Champion",
-    domains: ["Mind"],
-    rarity: "Rare",
+    types: ["Champion", "Unit"],
+    domains: ["Fury"],
+    tags: ["Annie", "Noxus"],
+    rarity: "Epic",
 
-    // ---- COSTS ----
-    energyCost: 3,
-    furyPower: 0,
+    energyCost: 5,
+    furyPower: 1,
     calmPower: 0,
-    mindPower: 1,
+    mindPower: 0,
     bodyPower: 0,
     chaosPower: 0,
     orderPower: 0,
     wildPower: 0,
     alternateCost: false,
 
-    // ---- STATS ----
     might: 4,
     mightBonus: null,
 
-    // ---- XP & LEVEL ----
     huntValue: null,
     levelThreshold: null,
     levelAbility: null,
 
-    // ---- TEXT ----
-    cardText: "Assault 2. Strike: Deal 1 damage to target unit.",
-    flavorText: "The Seven Deadly Cuts.",
-    keywords: ["Assault 2", "Strike"],
+    cardText: "Your spells and abilities deal 1 Bonus Damage. (Each instance of damage the spell deals is increased by 1.)",
+    flavorText: "\"I never play with matches.\"",
+    keywords: [],
 
-    // ---- VISUALS ----
-    imageUrl: null,
-    imageArtist: null,
+    imageUrl: "https://pub-6c0cf07bed80457da2e86e2baf433845.r2.dev/cards/annie-fiery.png",
+    imageArtist: "Polar Engine Studio",
 
-    // ---- LEGALITY ----
     legalStandard: true,
     legalCasual: true,
 
-    // ---- META ----
     releasedAt: new Date("2025-10-01"),
   },
 ]
@@ -74,7 +65,7 @@ const sets = [
   },
   {
     code: "OGS",
-    name: "Origins Starter",
+    name: "Origins - Proving Grounds",
     totalCards: 24,
     releasedAt: new Date("2025-10-01"),
   },
@@ -99,23 +90,21 @@ const sets = [
 async function main() {
   console.log("🌱 Seeding database...")
 
-  // Import sets first
+  // Wipe existing data first so seed.js is always the source of truth
+  // Cards must be deleted before sets due to relationships
+  console.log("🗑️ Clearing existing data...")
+  await prisma.card.deleteMany()
+  await prisma.set.deleteMany()
+
+  // Import sets
   for (const set of sets) {
-    await prisma.set.upsert({
-      where: { code: set.code },  // If set already exists, update it
-      update: set,                // upsert = update OR insert
-      create: set,                // so running seed twice won't duplicate data
-    })
+    await prisma.set.create({ data: set })
   }
   console.log(`✅ ${sets.length} sets imported`)
 
   // Import cards
   for (const card of cards) {
-    await prisma.card.upsert({
-      where: { id: card.id },
-      update: card,
-      create: card,
-    })
+    await prisma.card.create({ data: card })
   }
   console.log(`✅ ${cards.length} cards imported`)
 

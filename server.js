@@ -37,7 +37,7 @@ app.get("/search", async (req, res) => {
     where: {
       // Only apply each filter if it was provided in the query
       name:   name   ? { contains: name, mode: "insensitive" } : undefined,
-      type:   type   ? { equals: type }                        : undefined,
+      types:   type   ? { has: type }                          : undefined,
       rarity: rarity ? { equals: rarity }                      : undefined,
       set:    set    ? { equals: set }                         : undefined,
       // Filter by domain (checks if the domains array contains the value)
@@ -55,5 +55,5 @@ app.get("/sets", async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`✅ Pix Helper API running at http://localhost:${PORT}`)
+  console.log(`✅ Oracle Lens API running at http://localhost:${PORT}`)
 })

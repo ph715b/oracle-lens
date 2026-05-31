@@ -27,7 +27,7 @@ model Card {
 
   // ---- CARD DETAILS ----
   // Champion | Legend | Unit | Token | Spell | Rune | Gear | Battlefield
-  type        String
+  types        String[]
   
   // Fury | Calm | Mind | Body | Chaos | Order
   // Stored as an array since cards can have multiple domains
@@ -71,6 +71,7 @@ model Card {
   
   // Keywords stored as an array e.g. ["Assault 2", "Reaction"]
   keywords    String[]
+  tags        String[]                    // e.g. ["Annie", "Noxus", "Mage"]
 
   // ---- VISUALS ----
   imageUrl    String?                     // Cloudflare R2 URL (added later)

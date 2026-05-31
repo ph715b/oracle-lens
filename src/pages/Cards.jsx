@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { getCards } from "../api"
 import CardTile from "../components/CardTile"
-import CardModal from "../components/CardModal"
 
 // Filter options
 const TYPES    = ["All", "Champion", "Legend", "Unit", "Token", "Spell", "Rune", "Gear", "Battlefield"]
@@ -14,9 +13,6 @@ function Cards() {
   const [cards, setCards]   = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState(null)
-
-  // Currently selected card for the modal
-  const [selected, setSelected] = useState(null)
 
   // Filter state
   const [search,       setSearch]       = useState("")
@@ -128,9 +124,9 @@ function Cards() {
 
       {/* ---- CARD GRID ---- */}
       {!loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {cards.map((card) => (
-            <CardTile key={card.id} card={card} onClick={setSelected} />
+            <CardTile key={card.id} card={card} />
           ))}
         </div>
       )}
@@ -142,9 +138,6 @@ function Cards() {
           <p>No cards found. Try adjusting your filters.</p>
         </div>
       )}
-
-      {/* ---- CARD MODAL ---- */}
-      <CardModal card={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }
