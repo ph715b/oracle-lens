@@ -1,17 +1,19 @@
-# Oracle Lens
+# ⚡ Oracle Lens
 
-A community-built card database and browser for Riftbound, inspired by Scryfall.
+An open source card database and browser for Riftbound, inspired by Scryfall.
 
 ## Features
 - Browse and search every Riftbound card
 - Filter by type, domain, rarity, and set
-- Full card details including cost, keywords, and rulings
-- Open REST API for developers
+- Full card details including cost, keywords, card text, and artwork
+- Click any card to see its full detail page
+- Public API for developers to build their own Riftbound tools
 
 ## Tech Stack
 - React + Vite + Tailwind CSS
 - Node.js + Express
 - PostgreSQL + Prisma
+- Cloudflare R2 (image hosting)
 
 ## Getting Started
 
@@ -20,35 +22,78 @@ A community-built card database and browser for Riftbound, inspired by Scryfall.
 - PostgreSQL
 
 ### Installation
-```bash
-git clone https://github.com/YOURUSERNAME/oracle-lens
+\`\`\`bash
+git clone https://github.com/ph715b/oracle-lens
 cd oracle-lens
 npm install
-```
+\`\`\`
 
 ### Setup
+
 1. Create a `.env` file in the project root:
+\`\`\`
+DATABASE_URL="postgresql://postgres:YOURPASSWORD@localhost:5432/oraclelens"
+CLOUDFLARE_ACCOUNT_ID="your_account_id"
+CLOUDFLARE_R2_BUCKET="oracle-lens-cards"
+CLOUDFLARE_R2_PUBLIC_URL="your_public_bucket_url"
+CLOUDFLARE_R2_ACCESS_KEY_ID="your_access_key_id"
+CLOUDFLARE_R2_SECRET_ACCESS_KEY="your_secret_access_key"
+\`\`\`
 
 2. Run database migrations:
-```bash
+\`\`\`bash
 npx prisma migrate dev
-```
+\`\`\`
 
 3. Seed the database:
-```bash
+\`\`\`bash
 npm run seed
-```
+\`\`\`
 
-4. Start the development server:
-```bash
+4. Start the servers:
+\`\`\`bash
 npm run dev
 node server.js
-```
+\`\`\`
+
+5. Open your browser at http://localhost:5173
+
+## API Endpoints
+
+\`\`\`
+GET /cards              — Returns all cards
+GET /cards/:slug        — Returns a single card by slug
+GET /search             — Search and filter cards
+GET /sets               — Returns all sets
+\`\`\`
+
+### Search Parameters
+\`\`\`
+/search?name=annie
+/search?type=Champion
+/search?domain=Fury
+/search?rarity=Rare
+/search?set=OGS
+\`\`\`
+
+## Uploading Card Images
+\`\`\`bash
+node upload-image.js <card-slug> ./images/<filename>.png
+\`\`\`
+
+## Sets
+| Code | Name | Cards |
+|------|------|-------|
+| OGS | Origins - Proving Grounds | 24 |
+| OGN | Origins | 298 |
+| SFD | Spiritforged | 221 |
+| UNL | Unleashed | 219 |
 
 ## Contributing
-Contributions are welcome! If you'd like to add card data, fix a bug, or suggest
-a feature, feel free to open an issue or pull request.
+Contributions are welcome! If you want to add card data, fix a bug, or suggest
+a feature feel free to open an issue or pull request.
 
 ## Legal
 Oracle Lens was created under Riot Games' "Legal Jibber Jabber" policy using
 assets owned by Riot Games. Riot Games does not endorse or sponsor this project.
+Card names, artwork, and game data are the property of Riot Games.
