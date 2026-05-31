@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { getCard } from "../api"
 
-// Domain colors for the colored pips
 const DOMAIN_COLORS = {
   Fury:  "bg-red-500",
   Calm:  "bg-green-500",
@@ -22,7 +21,7 @@ const DOMAIN_TEXT_COLORS = {
 }
 
 function CardPage() {
-  const { slug } = useParams()     // Gets the slug from the URL e.g. "annie-fiery"
+  const { slug } = useParams()
   const navigate = useNavigate()
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -52,7 +51,7 @@ function CardPage() {
   )
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-7xl mx-auto">
 
       {/* Back button */}
       <button
@@ -62,18 +61,18 @@ function CardPage() {
         ← Back to card gallery
       </button>
 
-      <div className="flex flex-col md:flex-row gap-10">
+      <div className="flex flex-row gap-10 items-start">
 
         {/* ---- LEFT — Card Image ---- */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 w-[380px]">
           {card.imageUrl ? (
             <img
               src={card.imageUrl}
               alt={card.name}
-              className="w-72 rounded-2xl shadow-2xl shadow-black/50"
+              className="w-full rounded-2xl shadow-2xl shadow-black/50"
             />
           ) : (
-            <div className="w-72 aspect-[2/3] bg-gray-800 rounded-2xl flex items-center justify-center text-gray-500">
+            <div className="w-full aspect-[2/3] bg-gray-800 rounded-2xl flex items-center justify-center text-gray-500">
               <span className="text-6xl">🃏</span>
             </div>
           )}
@@ -100,10 +99,7 @@ function CardPage() {
               <span className="text-gray-500 text-xs uppercase tracking-widest">Tags</span>
               <div className="flex gap-2 flex-wrap">
                 {card.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-gray-700 text-gray-300 text-sm px-3 py-1 rounded-full"
-                  >
+                  <span key={tag} className="bg-gray-700 text-gray-300 text-sm px-3 py-1 rounded-full">
                     {tag}
                   </span>
                 ))}
@@ -128,21 +124,16 @@ function CardPage() {
           <div className="flex flex-col gap-2">
             <span className="text-gray-500 text-xs uppercase tracking-widest">Casting Cost</span>
             <div className="flex items-center gap-2">
-              {/* Energy cost */}
               {card.energyCost !== null && (
                 <span className="bg-gray-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center text-sm">
                   {card.energyCost}
                 </span>
               )}
-              {/* Power cost pips */}
               {Object.entries({
-                Fury:  card.furyPower,
-                Calm:  card.calmPower,
-                Mind:  card.mindPower,
-                Body:  card.bodyPower,
-                Chaos: card.chaosPower,
-                Order: card.orderPower,
-                Wild:  card.wildPower,
+                Fury: card.furyPower, Calm: card.calmPower,
+                Mind: card.mindPower, Body: card.bodyPower,
+                Chaos: card.chaosPower, Order: card.orderPower,
+                Wild: card.wildPower,
               }).map(([domain, count]) =>
                 Array.from({ length: count }).map((_, i) => (
                   <div
@@ -171,10 +162,7 @@ function CardPage() {
               <span className="text-gray-500 text-xs uppercase tracking-widest">Keywords</span>
               <div className="flex gap-2 flex-wrap">
                 {card.keywords.map((kw) => (
-                  <span
-                    key={kw}
-                    className="bg-yellow-400/20 text-yellow-300 text-sm px-3 py-1 rounded font-medium"
-                  >
+                  <span key={kw} className="bg-yellow-400/20 text-yellow-300 text-sm px-3 py-1 rounded font-medium">
                     {kw}
                   </span>
                 ))}

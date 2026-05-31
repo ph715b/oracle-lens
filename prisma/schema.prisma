@@ -33,7 +33,7 @@ model Card {
   // Stored as an array since cards can have multiple domains
   domains     String[]
 
-  // Common | Uncommon | Rare | Epic | AlternateArt | Signature | Promo | Champion
+  // Common | Uncommon | Rare | Epic | AlternateArt | Promo | Champion
   rarity      String
 
   // ---- COSTS ----

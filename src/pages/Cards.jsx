@@ -3,9 +3,9 @@ import { getCards } from "../api"
 import CardTile from "../components/CardTile"
 
 // Filter options
-const TYPES    = ["All", "Champion", "Legend", "Unit", "Token", "Spell", "Rune", "Gear", "Battlefield"]
+const TYPES = ["All", "Champion", "Legend", "Unit", "Token", "Spell", "Signature", "Rune", "Gear", "Battlefield"]
 const DOMAINS  = ["All", "Fury", "Calm", "Mind", "Body", "Chaos", "Order"]
-const RARITIES = ["All", "Common", "Uncommon", "Rare", "Epic", "AlternateArt", "Signature", "Promo", "Champion"]
+const RARITIES = ["All", "Common", "Uncommon", "Rare", "Epic", "AlternateArt", "Promo", "Champion"]
 const SETS     = ["All", "OGN", "OGS", "SFD", "UNL"]
 
 function Cards() {
