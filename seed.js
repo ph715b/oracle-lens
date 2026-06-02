@@ -22,13 +22,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 5,
-    furyPower: 1,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 4,
@@ -66,13 +60,7 @@ const cards = [
     rarity: "Uncommon",
 
     energyCost: 6,
-    furyPower: 1,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: null,
@@ -110,13 +98,7 @@ const cards = [
     rarity: "Common",
 
     energyCost: 2,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -154,13 +136,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: 5,
-    furyPower: 0,
-    calmPower: 1,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 4,
@@ -198,13 +174,7 @@ const cards = [
     rarity: "Uncommon",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 1,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 6,
@@ -242,13 +212,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 1,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 5,
@@ -286,13 +250,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 1,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 5,
@@ -330,13 +288,7 @@ const cards = [
     rarity: "Common",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 1,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: null,
@@ -374,13 +326,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 7,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 1,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 6,
@@ -418,13 +364,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: 4,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 1,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 3,
@@ -462,13 +402,7 @@ const cards = [
     rarity: "Common",
 
     energyCost: 2,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -506,13 +440,7 @@ const cards = [
     rarity: "Common",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 1,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: null,
@@ -550,13 +478,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 1,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 5,
@@ -594,13 +516,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 4,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: 2,
@@ -638,13 +554,7 @@ const cards = [
     rarity: "Uncommon",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -682,13 +592,7 @@ const cards = [
     rarity: "Common",
 
     energyCost: 6,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 1,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: false,
 
     might: 5,
@@ -727,13 +631,7 @@ const cards = [
 
     // Legends have no energy or power cost
     energyCost: null,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -771,13 +669,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 8,
-    furyPower: 2,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 2,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 2,
     alternateCost: true,
 
     might: 7,
@@ -815,13 +707,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: null,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -859,13 +745,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 4,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -903,13 +783,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: null,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -946,13 +820,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 8,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -990,13 +858,7 @@ const cards = [
     rarity: "Rare",
 
     energyCost: null,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 0,
-    chaosPower: 0,
-    orderPower: 0,
-    wildPower: 0,
+    powerCost: 0,
     alternateCost: false,
 
     might: null,
@@ -1034,13 +896,7 @@ const cards = [
     rarity: "Epic",
 
     energyCost: 5,
-    furyPower: 0,
-    calmPower: 0,
-    mindPower: 0,
-    bodyPower: 1,
-    chaosPower: 0,
-    orderPower: 1,
-    wildPower: 0,
+    powerCost: 1,
     alternateCost: true,
 
     might: null,

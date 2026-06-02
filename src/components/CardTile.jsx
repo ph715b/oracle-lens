@@ -15,9 +15,12 @@ function CardTile({ card }) {
           className="w-full h-auto object-cover"
         />
       ) : (
-        <div className="bg-gray-800 border border-gray-700 rounded-lg aspect-[2/3] flex flex-col items-center justify-center gap-2 text-gray-500">
+        <div
+          className="w-full aspect-[2/3] rounded-lg flex flex-col items-center justify-center gap-2"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+        >
           <span className="text-4xl">🃏</span>
-          <span className="text-xs text-center px-2">{card.name}</span>
+          <span className="text-xs text-center px-2" style={{ color: "var(--text-secondary)" }}>{card.name}</span>
         </div>
       )}
     </div>

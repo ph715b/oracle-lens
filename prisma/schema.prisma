@@ -39,19 +39,8 @@ model Card {
   // ---- COSTS ----
   // null for Legend, Token, and Rune cards
   energyCost  Int?                        // ? means this field is optional (can be null)
-  
-  // Power costs stored per domain
-  // null for Legend, Token, and Rune cards
-  furyPower   Int      @default(0)        // Red
-  calmPower   Int      @default(0)        // Green
-  mindPower   Int      @default(0)        // Blue
-  bodyPower   Int      @default(0)        // Orange
-  chaosPower  Int      @default(0)        // Purple
-  orderPower  Int      @default(0)        // Yellow
-  wildPower   Int      @default(0)        // Any domain
-
-  // True if card has alternate cost options (e.g. 1 Fury OR 1 Body)
-  alternateCost Boolean @default(false)
+  powerCost     Int      @default(0)
+  alternateCost Boolean  @default(false)
 
   // ---- STATS ----
   // Only Champion, Unit, and Token cards have might

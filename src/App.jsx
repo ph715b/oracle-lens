@@ -1,49 +1,54 @@
-import { Routes, Route, useNavigate } from "react-router-dom"
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom"
 import Cards from "./pages/Cards"
 import CardPage from "./pages/CardPage"
+import Landing from "./pages/Landing"
 
 function App() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const isLanding = location.pathname === "/"
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navbar */}
-      <nav className="bg-gray-800 border-b border-yellow-400/30 px-6 py-4 flex items-center gap-8">
-        {/* Clicking logo goes home */}
-        <h1
-          onClick={() => navigate("/")}
-          className="text-xl font-bold text-yellow-400 mr-4 cursor-pointer"
-        >
-          ⚡ Oracle Lens
-        </h1>
+    <div className="min-h-screen">
 
-        <button
-          onClick={() => navigate("/")}
-          className="uppercase text-sm font-medium tracking-wide text-gray-400 hover:text-white transition-colors"
-        >
-          Cards
-        </button>
-        <button
-          onClick={() => navigate("/sets")}
-          className="uppercase text-sm font-medium tracking-wide text-gray-400 hover:text-white transition-colors"
-        >
-          Sets
-        </button>
-        <button
-          onClick={() => navigate("/api")}
-          className="uppercase text-sm font-medium tracking-wide text-gray-400 hover:text-white transition-colors"
-        >
-          API
-        </button>
-      </nav>
+      {!isLanding && (
+        <nav className="relative z-10 px-8 py-5 flex items-center justify-between"
+          style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-primary)" }}>
+          <h1
+            onClick={() => navigate("/")}
+            className="text-xl font-bold cursor-pointer tracking-wide"
+            style={{ color: "var(--accent)" }}
+          >
+            Oracle Lens
+          </h1>
+          <div className="flex items-center gap-6">
+            {["cards", "sets", "api"].map((p) => (
+              <button
+                key={p}
+                onClick={() => navigate(`/${p}`)}
+                className="text-sm uppercase tracking-widest transition-colors duration-200"
+                style={{
+                  color: location.pathname === `/${p}` ? "var(--accent)" : "var(--text-secondary)"
+                }}
+                onMouseEnter={e => e.target.style.color = "var(--text-primary)"}
+                onMouseLeave={e => {
+                  e.target.style.color = location.pathname === `/${p}` ? "var(--accent)" : "var(--text-secondary)"
+                }}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
 
-      {/* Routes */}
-      <main className="p-6">
+      <main className={isLanding ? "" : "p-6"}>
         <Routes>
-          <Route path="/"              element={<Cards />} />
-          <Route path="/cards/:slug"   element={<CardPage />} />
-          <Route path="/sets"          element={<div className="text-gray-400">Sets coming soon...</div>} />
-          <Route path="/api"           element={<div className="text-gray-400">API docs coming soon...</div>} />
+          <Route path="/"            element={<Landing />} />
+          <Route path="/cards"       element={<Cards />} />
+          <Route path="/cards/:slug" element={<CardPage />} />
+          <Route path="/sets"        element={<div style={{ color: "var(--text-secondary)" }}>Sets coming soon...</div>} />
+          <Route path="/api"         element={<div style={{ color: "var(--text-secondary)" }}>API docs coming soon...</div>} />
         </Routes>
       </main>
     </div>
