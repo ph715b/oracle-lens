@@ -4,30 +4,24 @@ import { PrismaClient } from "./src/generated/prisma/index.js"
 import path from "path"
 import { fileURLToPath } from "url"
 
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Initialize Express and Prisma
 const app = express()
 const prisma = new PrismaClient()
 const PORT = process.env.PORT || 3001
 
-// Middleware
-app.use(cors())                                               // Allows the React frontend to talk to this server
-app.use(express.json())                                       // Lets the server read JSON from requests
-app.use(express.static(path.join(__dirname, "dist")))         // Serve the built React app
+app.use(cors())
+app.use(express.json())
 
-// ---- ROUTES ----
+// ---- API ROUTES (must come BEFORE static files) ----
 
-// GET /cards — return all cards
-app.get("/cards", async (req, res) => {
+app.get("/api/cards", async (req, res) => {
   const cards = await prisma.card.findMany()
   res.json(cards)
 })
 
-// GET /cards/:slug — return a single card by its slug e.g. /cards/master-yi
-app.get("/cards/:slug", async (req, res) => {
+app.get("/api/cards/:slug", async (req, res) => {
   const card = await prisma.card.findUnique({
     where: { slug: req.params.slug }
   })
@@ -35,37 +29,34 @@ app.get("/cards/:slug", async (req, res) => {
   res.json(card)
 })
 
-// GET /cards/search?name=yi&type=Champion&domain=Mind
-// Search and filter cards
-app.get("/search", async (req, res) => {
+app.get("/api/search", async (req, res) => {
   const { name, type, domain, rarity, set } = req.query
-
   const cards = await prisma.card.findMany({
     where: {
-      // Only apply each filter if it was provided in the query
-      name:   name   ? { contains: name, mode: "insensitive" } : undefined,
-      types:   type   ? { has: type }                          : undefined,
-      rarity: rarity ? { equals: rarity }                      : undefined,
-      set:    set    ? { equals: set }                         : undefined,
-      // Filter by domain (checks if the domains array contains the value)
-      domains: domain ? { has: domain }                        : undefined,
+      name:    name   ? { contains: name, mode: "insensitive" } : undefined,
+      types:   type   ? { has: type }                           : undefined,
+      rarity:  rarity ? { equals: rarity }                      : undefined,
+      set:     set    ? { equals: set }                         : undefined,
+      domains: domain ? { has: domain }                         : undefined,
     }
   })
   res.json(cards)
 })
 
-// GET /sets — return all sets
-app.get("/sets", async (req, res) => {
+app.get("/api/sets", async (req, res) => {
   const sets = await prisma.set.findMany()
   res.json(sets)
 })
 
-// Serve React app for any non-API routes
-app.get("/{*splat}", (req, res) => {
+// ---- SERVE REACT APP ----
+// Static files served from dist
+app.use(express.static(path.join(__dirname, "dist")))
+
+// Catch-all — send React app for any other route
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"))
 })
 
-// Start the server
 app.listen(PORT, () => {
   console.log(`✅ Oracle Lens API running at http://localhost:${PORT}`)
 })

@@ -1,8 +1,5 @@
-// Base URL for the API
-// In production it's the same domain, in development it's localhost
-const API_URL = import.meta.env.PROD ? "" : "http://localhost:3001"
+const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:3001/api"
 
-// Fetch all cards
 export async function getCards({ name, type, domain, rarity, set } = {}) {
   const params = new URLSearchParams()
   if (name)   params.append("name", name)
