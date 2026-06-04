@@ -1,15 +1,22 @@
 import express from "express"
 import cors from "cors"
 import { PrismaClient } from "./src/generated/prisma/index.js"
+import path from "path"
+import { fileURLToPath } from "url"
+
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Initialize Express and Prisma
 const app = express()
 const prisma = new PrismaClient()
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
 // Middleware
-app.use(cors())                  // Allows the React frontend to talk to this server
-app.use(express.json())          // Lets the server read JSON from requests
+app.use(cors())                                               // Allows the React frontend to talk to this server
+app.use(express.json())                                       // Lets the server read JSON from requests
+app.use(express.static(path.join(__dirname, "dist")))         // Serve the built React app
 
 // ---- ROUTES ----
 
@@ -51,6 +58,11 @@ app.get("/search", async (req, res) => {
 app.get("/sets", async (req, res) => {
   const sets = await prisma.set.findMany()
   res.json(sets)
+})
+
+// Serve React app for any non-API routes
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"))
 })
 
 // Start the server

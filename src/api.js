@@ -1,10 +1,9 @@
-// Base URL for our API
-// We use an environment variable so it's easy to swap when we deploy
-const API_URL = "http://localhost:3001"
+// Base URL for the API
+// In production it's the same domain, in development it's localhost
+const API_URL = import.meta.env.PROD ? "" : "http://localhost:3001"
 
-// Fetch all cards, with optional filters
+// Fetch all cards
 export async function getCards({ name, type, domain, rarity, set } = {}) {
-  // Build query string from any filters that were provided
   const params = new URLSearchParams()
   if (name)   params.append("name", name)
   if (type)   params.append("type", type)
@@ -16,13 +15,11 @@ export async function getCards({ name, type, domain, rarity, set } = {}) {
   return res.json()
 }
 
-// Fetch a single card by its slug
 export async function getCard(slug) {
   const res = await fetch(`${API_URL}/cards/${slug}`)
   return res.json()
 }
 
-// Fetch all sets
 export async function getSets() {
   const res = await fetch(`${API_URL}/sets`)
   return res.json()
