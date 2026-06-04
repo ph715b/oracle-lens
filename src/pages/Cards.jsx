@@ -10,9 +10,9 @@ const RARITIES = ["All", "Common", "Uncommon", "Rare", "Epic", "AlternateArt", "
 const SETS     = ["All", "OGN", "OGS", "SFD", "UNL"]
 
 function Cards() {
-  const [cards, setCards]     = useState([])
+  const [cards,   setCards]   = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState(null)
+  const [error,   setError]   = useState(null)
 
   const [searchParams] = useSearchParams()
   const [search,       setSearch]       = useState(searchParams.get("search") || "")
@@ -20,7 +20,22 @@ function Cards() {
   const [domainFilter, setDomainFilter] = useState("All")
   const [rarityFilter, setRarityFilter] = useState("All")
   const [setFilter,    setSetFilter]    = useState("All")
+  const [sortBy,       setSortBy]       = useState("name")
+  const [order,        setOrder]        = useState("asc")
 
+  // Add this above the useEffect
+  const RARITY_ORDER = {
+    Common:       1,
+    Uncommon:     2,
+    Rare:         3,
+    Epic:         4,
+    AlternateArt: 5,
+    Signature:    5,
+    Promo:        6,
+    Champion:     7,
+  }
+
+  // Fetch cards whenever filters or sort change
   useEffect(() => {
     const fetchCards = async () => {
       setLoading(true)
@@ -32,7 +47,19 @@ function Cards() {
           domain: domainFilter !== "All" ? domainFilter : undefined,
           rarity: rarityFilter !== "All" ? rarityFilter : undefined,
           set:    setFilter    !== "All" ? setFilter    : undefined,
+          sortBy,
+          order,
         })
+
+        // If sorting by rarity, override the alphabetical sort with proper rarity order
+        if (sortBy === "rarity") {
+          data.sort((a, b) => {
+            const aRank = RARITY_ORDER[a.rarity] || 0
+            const bRank = RARITY_ORDER[b.rarity] || 0
+            return order === "asc" ? aRank - bRank : bRank - aRank
+          })
+        }
+
         setCards(data)
       } catch (e) {
         setError("Failed to load cards. Is the server running?")
@@ -42,12 +69,12 @@ function Cards() {
 
     const timer = setTimeout(fetchCards, 300)
     return () => clearTimeout(timer)
-  }, [search, typeFilter, domainFilter, rarityFilter, setFilter])
+  }, [search, typeFilter, domainFilter, rarityFilter, setFilter, sortBy, order])
 
   return (
     <div>
       {/* ---- SEARCH & FILTERS ---- */}
-      <div className="mb-6 flex flex-col gap-3">
+      <div className="mb-6 flex flex-col gap-4">
 
         {/* Search input */}
         <input
@@ -65,67 +92,149 @@ function Cards() {
           onBlur={e => e.target.style.borderColor = "var(--border)"}
         />
 
-        {/* Type filter buttons */}
-        <div className="flex gap-2 flex-wrap">
-          {TYPES.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
-              className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-200"
-              style={typeFilter === t
-                ? { background: "var(--accent)", color: "var(--bg-primary)", border: "1px solid transparent" }
-                : { background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)" }
-              }
+        {/* Filters + Sort row */}
+        <div className="flex gap-3 flex-wrap items-end">
+
+          {/* Type filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>Type</label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="text-sm rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+                minWidth: "140px",
+              }}
             >
-              {t}
-            </button>
-          ))}
-        </div>
+              {TYPES.map((t) => <option key={t} value={t}>{t === "All" ? "All Types" : t}</option>)}
+            </select>
+          </div>
 
-        {/* Domain filter buttons */}
-        <div className="flex gap-2 flex-wrap">
-          {DOMAINS.map((d) => (
-            <button
-              key={d}
-              onClick={() => setDomainFilter(d)}
-              className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-200"
-              style={domainFilter === d
-                ? { background: "var(--accent)", color: "var(--bg-primary)", border: "1px solid transparent" }
-                : { background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)" }
-              }
+          {/* Domain filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>Domain</label>
+            <select
+              value={domainFilter}
+              onChange={(e) => setDomainFilter(e.target.value)}
+              className="text-sm rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+                minWidth: "140px",
+              }}
             >
-              {d}
+              {DOMAINS.map((d) => <option key={d} value={d}>{d === "All" ? "All Domains" : d}</option>)}
+            </select>
+          </div>
+
+          {/* Rarity filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>Rarity</label>
+            <select
+              value={rarityFilter}
+              onChange={(e) => setRarityFilter(e.target.value)}
+              className="text-sm rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+                minWidth: "140px",
+              }}
+            >
+              {RARITIES.map((r) => <option key={r} value={r}>{r === "All" ? "All Rarities" : r}</option>)}
+            </select>
+          </div>
+
+          {/* Set filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>Set</label>
+            <select
+              value={setFilter}
+              onChange={(e) => setSetFilter(e.target.value)}
+              className="text-sm rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+                minWidth: "140px",
+              }}
+            >
+              {SETS.map((s) => <option key={s} value={s}>{s === "All" ? "All Sets" : s}</option>)}
+            </select>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: "1px", alignSelf: "stretch", background: "var(--border)", margin: "0 4px" }} />
+
+          {/* Sort by */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>Sort by</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="text-sm rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+                minWidth: "140px",
+              }}
+            >
+              <option value="name">Name</option>
+              <option value="releaseDate">Release Date</option>
+              <option value="set">Set</option>
+              <option value="rarity">Rarity</option>
+              <option value="energyCost">Energy Cost</option>
+              <option value="powerCost">Power Cost</option>
+              <option value="might">Might</option>
+            </select>
+          </div>
+
+          {/* Order */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>Order</label>
+            <select
+              value={order}
+              onChange={(e) => setOrder(e.target.value)}
+              className="text-sm rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+                minWidth: "120px",
+              }}
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+
+          {/* Reset filters button */}
+          {(typeFilter !== "All" || domainFilter !== "All" || rarityFilter !== "All" || setFilter !== "All" || search) && (
+            <button
+              onClick={() => {
+                setSearch("")
+                setTypeFilter("All")
+                setDomainFilter("All")
+                setRarityFilter("All")
+                setSetFilter("All")
+              }}
+              className="text-sm px-3 py-2 rounded-lg transition-colors"
+              style={{
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border)",
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = "var(--accent)"}
+              onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+            >
+              Reset
             </button>
-          ))}
-        </div>
+          )}
 
-        {/* Rarity + Set dropdowns */}
-        <div className="flex gap-4 flex-wrap">
-          <select
-            value={rarityFilter}
-            onChange={(e) => setRarityFilter(e.target.value)}
-            className="text-sm rounded-lg px-3 py-1.5 focus:outline-none"
-            style={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--border)",
-              color: "var(--text-secondary)",
-            }}
-          >
-            {RARITIES.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
-
-          <select
-            value={setFilter}
-            onChange={(e) => setSetFilter(e.target.value)}
-            className="text-sm rounded-lg px-3 py-1.5 focus:outline-none"
-            style={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--border)",
-              color: "var(--text-secondary)",
-            }}
-          >
-            {SETS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
         </div>
       </div>
 
