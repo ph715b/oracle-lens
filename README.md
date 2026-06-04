@@ -1,4 +1,4 @@
-# ⚡ Oracle Lens
+# Oracle Lens
 
 An open source card database and browser for Riftbound, inspired by Scryfall.
 
@@ -50,7 +50,7 @@ npx prisma migrate dev
 npm run seed
 \`\`\`
 
-4. Start the servers:
+4. Start the servers in two separate terminals:
 \`\`\`bash
 npm run dev
 node server.js
@@ -80,6 +80,22 @@ GET /sets               — Returns all sets
 \`\`\`bash
 node upload-image.js <card-slug> ./images/<filename>.png
 \`\`\`
+
+## Card Schema
+
+Each card includes the following fields:
+- `id`, `slug`, `name` — identifiers
+- `set`, `setName`, `number` — set information
+- `types` — array of card types (Champion, Legend, Unit, Token, Spell, Signature, Rune, Gear, Battlefield)
+- `domains` — array of domains (Fury, Calm, Mind, Body, Chaos, Order)
+- `tags` — array of tags (champion name, region, race, etc.)
+- `rarity` — Common, Uncommon, Rare, Epic, AlternateArt, Promo, Champion
+- `energyCost`, `powerCost`, `alternateCost` — cost information
+- `might`, `mightBonus` — combat stats
+- `huntValue`, `levelThreshold`, `levelAbility` — XP and level mechanics
+- `cardText`, `flavorText`, `keywords` — card text
+- `imageUrl`, `imageArtist` — artwork
+- `legalStandard`, `legalCasual` — legality
 
 ## Sets
 | Code | Name | Cards |
