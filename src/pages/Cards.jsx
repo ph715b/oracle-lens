@@ -10,9 +10,12 @@ const RARITIES = ["All", "Common", "Uncommon", "Rare", "Epic", "AlternateArt", "
 const SETS     = ["All", "OGN", "OGS", "SFD", "UNL"]
 
 function Cards() {
-  const [cards,   setCards]   = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState(null)
+  const [cards,   setCards]         = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [error,   setError]         = useState(null)
+  const [page, setPage]             = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal]           = useState(0)
 
   const [searchParams] = useSearchParams()
   const [search,       setSearch]       = useState(searchParams.get("search") || "")
@@ -49,18 +52,22 @@ function Cards() {
           set:    setFilter    !== "All" ? setFilter    : undefined,
           sortBy,
           order,
+          page,
+          limit: 60,
         })
 
-        // If sorting by rarity, override the alphabetical sort with proper rarity order
+        let sortedCards = data.cards
         if (sortBy === "rarity") {
-          data.sort((a, b) => {
+          sortedCards = [...sortedCards].sort((a, b) => {
             const aRank = RARITY_ORDER[a.rarity] || 0
             const bRank = RARITY_ORDER[b.rarity] || 0
             return order === "asc" ? aRank - bRank : bRank - aRank
           })
         }
 
-        setCards(data)
+        setCards(sortedCards)
+        setTotal(data.total)
+        setTotalPages(data.totalPages)
       } catch (e) {
         setError("Failed to load cards. Is the server running?")
       }
@@ -69,8 +76,12 @@ function Cards() {
 
     const timer = setTimeout(fetchCards, 300)
     return () => clearTimeout(timer)
-  }, [search, typeFilter, domainFilter, rarityFilter, setFilter, sortBy, order])
+  }, [search, typeFilter, domainFilter, rarityFilter, setFilter, sortBy, order, page])
 
+// Reset to page 1 when filters change
+useEffect(() => {
+  setPage(1)
+}, [search, typeFilter, domainFilter, rarityFilter, setFilter, sortBy, order])
   return (
     <div>
       {/* ---- SEARCH & FILTERS ---- */}
@@ -240,7 +251,7 @@ function Cards() {
 
       {/* ---- RESULTS COUNT ---- */}
       <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
-        {loading ? "Loading..." : `Showing ${cards.length} card${cards.length !== 1 ? "s" : ""}`}
+        {loading ? "Loading..." : `Showing ${cards.length} of ${total} card${total !== 1 ? "s" : ""}`}
       </p>
 
       {/* ---- ERROR STATE ---- */}
@@ -259,7 +270,7 @@ function Cards() {
 
       {/* ---- CARD GRID ---- */}
       {!loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-5 gap-3 max-w-7xl mx-auto">
           {cards.map((card) => (
             <CardTile key={card.id} card={card} />
           ))}
@@ -271,6 +282,81 @@ function Cards() {
         <div className="text-center mt-16">
           <p className="text-4xl mb-3">🃏</p>
           <p style={{ color: "var(--text-secondary)" }}>No cards found. Try adjusting your filters.</p>
+        </div>
+      )}
+
+      {/* ---- PAGINATION ---- */}
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-8">
+
+          {/* First page */}
+          <button
+            onClick={() => setPage(1)}
+            disabled={page === 1}
+            className="px-3 py-2 rounded-lg text-sm transition-colors"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              color: page === 1 ? "var(--text-dim)" : "var(--text-primary)",
+              cursor: page === 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            «
+          </button>
+
+          {/* Previous */}
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-2 rounded-lg text-sm transition-colors"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              color: page === 1 ? "var(--text-dim)" : "var(--text-primary)",
+              cursor: page === 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            ‹ Prev
+          </button>
+
+          {/* Current page info */}
+          <span
+            className="px-4 py-2 text-sm"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Page {page} of {totalPages}
+          </span>
+
+          {/* Next */}
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="px-3 py-2 rounded-lg text-sm transition-colors"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              color: page === totalPages ? "var(--text-dim)" : "var(--text-primary)",
+              cursor: page === totalPages ? "not-allowed" : "pointer",
+            }}
+          >
+            Next ›
+          </button>
+
+          {/* Last page */}
+          <button
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+            className="px-3 py-2 rounded-lg text-sm transition-colors"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              color: page === totalPages ? "var(--text-dim)" : "var(--text-primary)",
+              cursor: page === totalPages ? "not-allowed" : "pointer",
+            }}
+          >
+            »
+          </button>
+
         </div>
       )}
     </div>

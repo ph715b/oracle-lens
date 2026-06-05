@@ -36,9 +36,14 @@ app.get("/api/cards/:slug", async (req, res) => {
 // GET /api/search?name=yi&type=Champion&domain=Mind&sortBy=name&order=asc
 // Search, filter, and sort cards
 app.get("/api/search", async (req, res) => {
-  const { name, type, domain, rarity, set, sortBy = "name", order = "asc" } = req.query
+  const {
+    name, type, domain, rarity, set,
+    sortBy = "name",
+    order = "asc",
+    page = "1",
+    limit = "60",
+  } = req.query
 
-  // Map frontend sort options to actual database fields
   const sortField = {
     name:        "name",
     releaseDate: "releasedAt",
@@ -49,17 +54,35 @@ app.get("/api/search", async (req, res) => {
     might:       "might",
   }[sortBy] || "name"
 
-  const cards = await prisma.card.findMany({
-    where: {
-      name:    name   ? { contains: name, mode: "insensitive" } : undefined,
-      types:   type   ? { has: type }                           : undefined,
-      rarity:  rarity ? { equals: rarity }                      : undefined,
-      set:     set    ? { equals: set }                         : undefined,
-      domains: domain ? { has: domain }                         : undefined,
-    },
-    orderBy: { [sortField]: order }
+  const pageNum  = Math.max(1, parseInt(page))
+  const pageSize = Math.max(1, Math.min(120, parseInt(limit)))  // cap at 120 per page
+
+  const where = {
+    name:    name   ? { contains: name, mode: "insensitive" } : undefined,
+    types:   type   ? { has: type }                           : undefined,
+    rarity:  rarity ? { equals: rarity }                      : undefined,
+    set:     set    ? { equals: set }                         : undefined,
+    domains: domain ? { has: domain }                         : undefined,
+  }
+
+  // Run count and findMany in parallel for speed
+  const [total, cards] = await Promise.all([
+    prisma.card.count({ where }),
+    prisma.card.findMany({
+      where,
+      orderBy: { [sortField]: order },
+      skip: (pageNum - 1) * pageSize,
+      take: pageSize,
+    })
+  ])
+
+  res.json({
+    cards,
+    total,
+    page: pageNum,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
   })
-  res.json(cards)
 })
 
 // GET /api/sets — return all sets

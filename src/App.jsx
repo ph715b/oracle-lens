@@ -22,7 +22,7 @@ function App() {
             Oracle Lens
           </h1>
           <div className="flex items-center gap-6">
-            {["cards", "sets", "api"].map((p) => (
+            {["cards", "api"].map((p) => (
               <button
                 key={p}
                 onClick={() => navigate(`/${p}`)}
@@ -47,7 +47,6 @@ function App() {
           <Route path="/"            element={<Landing />} />
           <Route path="/cards"       element={<Cards />} />
           <Route path="/cards/:slug" element={<CardPage />} />
-          <Route path="/sets"        element={<div style={{ color: "var(--text-secondary)" }}>Sets coming soon...</div>} />
           <Route path="/api"         element={<div style={{ color: "var(--text-secondary)" }}>API docs coming soon...</div>} />
         </Routes>
       </main>

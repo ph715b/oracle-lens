@@ -1,14 +1,16 @@
 const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:3001/api"
 
-export async function getCards({ name, type, domain, rarity, set, sortBy, order } = {}) {
+export async function getCards({ name, type, domain, rarity, set, sortBy, order, page, limit } = {}) {
   const params = new URLSearchParams()
-  if (name)    params.append("name", name)
-  if (type)    params.append("type", type)
-  if (domain)  params.append("domain", domain)
-  if (rarity)  params.append("rarity", rarity)
-  if (set)     params.append("set", set)
-  if (sortBy)  params.append("sortBy", sortBy)
-  if (order)   params.append("order", order)
+  if (name)   params.append("name", name)
+  if (type)   params.append("type", type)
+  if (domain) params.append("domain", domain)
+  if (rarity) params.append("rarity", rarity)
+  if (set)    params.append("set", set)
+  if (sortBy) params.append("sortBy", sortBy)
+  if (order)  params.append("order", order)
+  if (page)   params.append("page", page)
+  if (limit)  params.append("limit", limit)
 
   const res = await fetch(`${API_URL}/search?${params}`)
   return res.json()
