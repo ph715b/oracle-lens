@@ -43,7 +43,7 @@ export default function Landing() {
           Oracle Lens
         </h1>
         <div className="flex items-center gap-6">
-          {["cards", "api"].map((p) => (
+          {["cards", "advanced", "api"].map((p) => (
             <button
               key={p}
               onClick={() => navigate(`/${p}`)}
@@ -120,6 +120,7 @@ export default function Landing() {
         <div className="flex items-center gap-6 mt-5">
           {[
             { label: "Browse All Cards →", path: "/cards" },
+            { label: "Advanced Search →", path: "/advanced" },
             { label: "API Docs →", path: "/api" },
           ].map((link, i, arr) => (
             <span key={link.path} className="flex items-center gap-6">

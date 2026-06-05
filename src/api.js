@@ -25,3 +25,19 @@ export async function getSets() {
   const res = await fetch(`${API_URL}/sets`)
   return res.json()
 }
+
+export async function searchCards(filters = {}) {
+  const params = new URLSearchParams()
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== "" && value !== null) {
+      if (Array.isArray(value)) {
+        if (value.length > 0) params.append(key, value.join(","))
+      } else {
+        params.append(key, value)
+      }
+    }
+  })
+
+  const res = await fetch(`${API_URL}/search?${params}`)
+  return res.json()
+}

@@ -2,6 +2,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom"
 import Cards from "./pages/Cards"
 import CardPage from "./pages/CardPage"
 import Landing from "./pages/Landing"
+import Advanced from "./pages/Advanced"
 
 function App() {
   const navigate = useNavigate()
@@ -22,7 +23,7 @@ function App() {
             Oracle Lens
           </h1>
           <div className="flex items-center gap-6">
-            {["cards", "api"].map((p) => (
+            {["cards", "advanced", "api"].map((p) => (
               <button
                 key={p}
                 onClick={() => navigate(`/${p}`)}
@@ -48,6 +49,7 @@ function App() {
           <Route path="/cards"       element={<Cards />} />
           <Route path="/cards/:slug" element={<CardPage />} />
           <Route path="/api"         element={<div style={{ color: "var(--text-secondary)" }}>API docs coming soon...</div>} />
+          <Route path="/advanced"    element={<Advanced />} />
         </Routes>
       </main>
     </div>

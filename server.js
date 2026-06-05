@@ -16,6 +16,11 @@ const PORT = process.env.PORT || 3001
 app.use(cors())                                               // Allows the React frontend to talk to this server
 app.use(express.json())                                       // Lets the server read JSON from requests
 
+app.use("/api", (req, res, next) => {
+  res.set("Cache-Control", "no-store")
+  next()
+})
+
 // ---- API ROUTES ----
 
 // GET /api/cards — return all cards
@@ -37,7 +42,12 @@ app.get("/api/cards/:slug", async (req, res) => {
 // Search, filter, and sort cards
 app.get("/api/search", async (req, res) => {
   const {
-    name, type, domain, rarity, set,
+    name, type, domain, domainMode, rarity, set,
+    cardText, flavorText, keyword, tag, artist, cardNumber,
+    energyCostMin, energyCostMax, energyCostExact,
+    powerCostMin, powerCostMax, powerCostExact,
+    mightMin, mightMax, mightExact,
+    legalStandard, legalCasual,
     sortBy = "name",
     order = "asc",
     page = "1",
@@ -55,17 +65,66 @@ app.get("/api/search", async (req, res) => {
   }[sortBy] || "name"
 
   const pageNum  = Math.max(1, parseInt(page))
-  const pageSize = Math.max(1, Math.min(120, parseInt(limit)))  // cap at 120 per page
+  const pageSize = Math.max(1, Math.min(120, parseInt(limit)))
 
-  const where = {
-    name:    name   ? { contains: name, mode: "insensitive" } : undefined,
-    types:   type   ? { has: type }                           : undefined,
-    rarity:  rarity ? { equals: rarity }                      : undefined,
-    set:     set    ? { equals: set }                         : undefined,
-    domains: domain ? { has: domain }                         : undefined,
+  // Build the where clause dynamically
+  const where = {}
+
+  // Text searches (case insensitive contains)
+  if (name)       where.name        = { contains: name,        mode: "insensitive" }
+  if (cardText)   where.cardText    = { contains: cardText,    mode: "insensitive" }
+  if (flavorText) where.flavorText  = { contains: flavorText,  mode: "insensitive" }
+  if (artist)     where.imageArtist = { contains: artist,      mode: "insensitive" }
+  if (cardNumber) where.number      = { contains: cardNumber,  mode: "insensitive" }
+
+  // Exact matches
+  if (type)   where.types  = { has: type }
+  if (rarity) where.rarity = rarity
+  if (set)    where.set    = set
+  if (keyword) where.keywords = { has: keyword }
+
+  // Domain — supports single or multiple (AND/OR)
+  if (domain) {
+    const domains = Array.isArray(domain) ? domain : domain.split(",").filter(Boolean)
+    if (domains.length > 0) {
+      if (domainMode === "and") {
+        // Must have ALL of these domains
+        where.domains = { hasEvery: domains }
+      } else {
+        // Must have ANY of these domains (default)
+        where.domains = { hasSome: domains }
+      }
+    }
   }
 
-  // Run count and findMany in parallel for speed
+  // Numeric filters — exact takes precedence over range
+  if (energyCostExact)    where.energyCost = parseInt(energyCostExact)
+  else if (energyCostMin || energyCostMax) {
+    where.energyCost = {}
+    if (energyCostMin) where.energyCost.gte = parseInt(energyCostMin)
+    if (energyCostMax) where.energyCost.lte = parseInt(energyCostMax)
+  }
+
+  if (powerCostExact)    where.powerCost = parseInt(powerCostExact)
+  else if (powerCostMin || powerCostMax) {
+    where.powerCost = {}
+    if (powerCostMin) where.powerCost.gte = parseInt(powerCostMin)
+    if (powerCostMax) where.powerCost.lte = parseInt(powerCostMax)
+  }
+
+  if (mightExact)    where.might = parseInt(mightExact)
+  else if (mightMin || mightMax) {
+    where.might = {}
+    if (mightMin) where.might.gte = parseInt(mightMin)
+    if (mightMax) where.might.lte = parseInt(mightMax)
+  }
+
+  // Legality
+  if (legalStandard === "true")  where.legalStandard = true
+  if (legalStandard === "false") where.legalStandard = false
+  if (legalCasual === "true")    where.legalCasual = true
+  if (legalCasual === "false")   where.legalCasual = false
+
   const [total, cards] = await Promise.all([
     prisma.card.count({ where }),
     prisma.card.findMany({
@@ -76,12 +135,23 @@ app.get("/api/search", async (req, res) => {
     })
   ])
 
+  // Case-insensitive tag filter applied after database query
+  let filteredCards = cards
+  let filteredTotal = total
+  if (tag) {
+    const tagLower = tag.toLowerCase()
+    filteredCards = cards.filter(c =>
+      c.tags.some(t => t.toLowerCase().includes(tagLower))
+    )
+    filteredTotal = filteredCards.length
+  }
+
   res.json({
-    cards,
-    total,
+    cards: filteredCards,
+    total: filteredTotal,
     page: pageNum,
     pageSize,
-    totalPages: Math.ceil(total / pageSize),
+    totalPages: Math.ceil(filteredTotal / pageSize),
   })
 })
 
