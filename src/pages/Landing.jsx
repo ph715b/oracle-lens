@@ -43,7 +43,7 @@ export default function Landing() {
           Oracle Lens
         </h1>
         <div className="flex items-center gap-6">
-          {["cards", "advanced", "api"].map((p) => (
+          {["cards", "advanced", "syntax", "api"].map((p) => (
             <button
               key={p}
               onClick={() => navigate(`/${p}`)}

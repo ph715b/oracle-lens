@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { getCards } from "../api"
 import CardTile from "../components/CardTile"
+import { parseQuery, filtersToParams } from "../utils/searchParser"
 
 // Filter options
 const TYPES    = ["All", "Champion", "Legend", "Unit", "Token", "Spell", "Signature", "Rune", "Gear", "Battlefield"]
@@ -44,24 +45,40 @@ function Cards() {
       setLoading(true)
       setError(null)
       try {
+        // Parse the search bar for syntax
+        const parsedFilters = parseQuery(search)
+        const syntaxParams   = filtersToParams(parsedFilters)
+
+        // Pull out negated filters before sending to API
+        const { __negate, ...searchParams } = syntaxParams
+
         const data = await getCards({
-          name:   search       || undefined,
-          type:   typeFilter   !== "All" ? typeFilter   : undefined,
-          domain: domainFilter !== "All" ? domainFilter : undefined,
-          rarity: rarityFilter !== "All" ? rarityFilter : undefined,
-          set:    setFilter    !== "All" ? setFilter    : undefined,
+          ...searchParams,
+          type:   typeFilter   !== "All" ? typeFilter   : searchParams.type,
+          domain: domainFilter !== "All" ? domainFilter : searchParams.domain,
+          rarity: rarityFilter !== "All" ? rarityFilter : searchParams.rarity,
+          set:    setFilter    !== "All" ? setFilter    : searchParams.set,
           sortBy,
           order,
           page,
           limit: 60,
         })
 
+        // Apply negation filters client-side
         let sortedCards = data.cards
-        if (sortBy === "rarity") {
-          sortedCards = [...sortedCards].sort((a, b) => {
-            const aRank = RARITY_ORDER[a.rarity] || 0
-            const bRank = RARITY_ORDER[b.rarity] || 0
-            return order === "asc" ? aRank - bRank : bRank - aRank
+        if (__negate && __negate.length > 0) {
+          sortedCards = sortedCards.filter(card => {
+            return __negate.every(({ field, value }) => {
+              const val = value.toLowerCase()
+              if (field === "type")    return !card.types.some(t => t.toLowerCase() === val)
+              if (field === "domain")  return !card.domains.some(d => d.toLowerCase() === val)
+              if (field === "rarity")  return card.rarity.toLowerCase() !== val
+              if (field === "set")     return card.set.toLowerCase() !== val
+              if (field === "tag")     return !card.tags.some(t => t.toLowerCase().includes(val))
+              if (field === "keyword") return !card.keywords.some(k => k.toLowerCase() === val)
+              if (field === "name")    return !card.name.toLowerCase().includes(val)
+              return true
+            })
           })
         }
 
@@ -73,7 +90,6 @@ function Cards() {
       }
       setLoading(false)
     }
-
     const timer = setTimeout(fetchCards, 300)
     return () => clearTimeout(timer)
   }, [search, typeFilter, domainFilter, rarityFilter, setFilter, sortBy, order, page])
@@ -87,21 +103,30 @@ useEffect(() => {
       {/* ---- SEARCH & FILTERS ---- */}
       <div className="mb-6 flex flex-col gap-4">
 
-        {/* Search input */}
-        <input
-          type="text"
-          placeholder="Search cards..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md rounded-lg px-4 py-2 text-sm focus:outline-none transition-all duration-200"
-          style={{
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            color: "var(--text-primary)",
-          }}
-          onFocus={e => e.target.style.borderColor = "var(--accent)"}
-          onBlur={e => e.target.style.borderColor = "var(--border)"}
-        />
+        {/* Search input with syntax guide link */}
+        <div className="flex flex-col gap-1 max-w-md">
+          <input
+            type="text"
+            placeholder='Search cards or use syntax (e.g. t:champion d:fury)'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg px-4 py-2 text-sm focus:outline-none transition-all duration-200"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+              color: "var(--text-primary)",
+            }}
+            onFocus={e => e.target.style.borderColor = "var(--accent)"}
+            onBlur={e => e.target.style.borderColor = "var(--border)"}
+          />
+          <a
+            href="/syntax"
+            className="text-xs underline transition-colors self-start"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Syntax guide
+          </a>
+        </div>
 
         {/* Filters + Sort row */}
         <div className="flex gap-3 flex-wrap items-end">
