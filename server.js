@@ -83,7 +83,9 @@ app.get("/api/search", async (req, res) => {
   if (type)   where.types  = { has: type }
   if (rarity) where.rarity = rarity
   if (set)    where.set    = set
-  if (keyword) where.keywords = { has: keyword }
+  // Keyword filter (handled after query for prefix matching)
+  let keywordFilter = null
+  if (keyword) keywordFilter = keyword.toLowerCase()
 
   // Domain — supports single or multiple (AND/OR)
   if (domain) {
@@ -140,13 +142,21 @@ app.get("/api/search", async (req, res) => {
   // Case-insensitive tag filter applied after database query
   let filteredCards = cards
   let filteredTotal = total
+
   if (tag) {
     const tagLower = tag.toLowerCase()
-    filteredCards = cards.filter(c =>
+    filteredCards = filteredCards.filter(c =>
       c.tags.some(t => t.toLowerCase().includes(tagLower))
     )
-    filteredTotal = filteredCards.length
   }
+
+  if (keywordFilter) {
+    filteredCards = filteredCards.filter(c =>
+      c.keywords.some(k => k.toLowerCase().startsWith(keywordFilter))
+    )
+  }
+
+  filteredTotal = filteredCards.length
 
   res.json({
     cards: filteredCards,
