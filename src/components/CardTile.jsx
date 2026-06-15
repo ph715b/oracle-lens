@@ -16,7 +16,7 @@ function CardTile({ card }) {
         />
       ) : (
         <div
-          className="w-full aspect-[2/3] rounded-lg flex flex-col items-center justify-center gap-2"
+          className="w-full aspect-2/3 rounded-lg flex flex-col items-center justify-center gap-2"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
         >
           <span className="text-4xl">🃏</span>

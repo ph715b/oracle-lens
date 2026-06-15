@@ -1,7 +1,33 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { getCard } from "../api"
-import DOMAIN_SYMBOLS, { RECYCLE_SYMBOL, MIGHT_SYMBOL } from "../data/domains"
+import DOMAIN_SYMBOLS, { RECYCLE_SYMBOL, MIGHT_SYMBOL, EXHAUST_SYMBOL } from "../data/domains"
+
+// Renders card text with inline symbol replacements
+function renderCardText(text) {
+  if (!text) return null
+  const parts = text.split(/(\{[A-Za-z]\})/g)
+
+  const symbolStyle = {
+    display: "inline-block",
+    width: "18px",
+    height: "18px",
+    verticalAlign: "text-bottom",
+  }
+
+  return parts.map((part, i) => {
+    if (part === "{M}") return <img key={i} src={MIGHT_SYMBOL}   alt="Might" style={symbolStyle} />
+    if (part === "{P}") return <img key={i} src={RECYCLE_SYMBOL} alt="Power" style={symbolStyle} />
+    if (part === "{T}") return <img key={i} src={EXHAUST_SYMBOL} alt="Tap"   style={symbolStyle} />
+    if (part === "{F}") return <img key={i} src={DOMAIN_SYMBOLS.Fury}  alt="Fury"  style={symbolStyle} />
+    if (part === "{C}") return <img key={i} src={DOMAIN_SYMBOLS.Calm}  alt="Calm"  style={symbolStyle} />
+    if (part === "{B}") return <img key={i} src={DOMAIN_SYMBOLS.Body}  alt="Body"  style={symbolStyle} />
+    if (part === "{I}") return <img key={i} src={DOMAIN_SYMBOLS.Mind}  alt="Mind"  style={symbolStyle} />
+    if (part === "{X}") return <img key={i} src={DOMAIN_SYMBOLS.Chaos} alt="Chaos" style={symbolStyle} />
+    if (part === "{O}") return <img key={i} src={DOMAIN_SYMBOLS.Order} alt="Order" style={symbolStyle} />
+    return part
+  })
+}
 
 function CardPage() {
   const { slug } = useParams()
@@ -244,7 +270,7 @@ function CardPage() {
                 }}
               >
                 <p className="leading-relaxed" style={{ color: "var(--text-primary)" }}>
-                  {card.cardText}
+                  {renderCardText(card.cardText)}
                 </p>
               </div>
             </div>

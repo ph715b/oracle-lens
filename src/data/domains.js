@@ -9,8 +9,8 @@ const DOMAIN_SYMBOLS = {
   Order: "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bb1b193a8e1adc26ca28e1a21da8d1e2f5d2f72-64x64.png?accountingTag=RB&auto=format&fit=fill&q=80&w=64",
 }
 
-export const RECYCLE_SYMBOL = "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
-export const MIGHT_SYMBOL = "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
-
+export const RECYCLE_SYMBOL   = "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+export const MIGHT_SYMBOL     = "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+export const EXHAUST_SYMBOL   = "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/exhaust.svg"
 
 export default DOMAIN_SYMBOLS
