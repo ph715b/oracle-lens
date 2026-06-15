@@ -158,6 +158,48 @@ app.get("/api/search", async (req, res) => {
 })
 
 // ---- ADMIN ROUTES ----
+app.get("/api/admin/cards-list", requireAdmin, async (req, res) => {
+  const cards = await prisma.card.findMany({
+    orderBy: [{ set: "asc" }, { number: "asc" }],
+    select: {
+      id: true, slug: true, name: true, set: true, number: true,
+      types: true, rarity: true, imageUrl: true,
+    }
+  })
+  res.json(cards)
+})
+
+// GET /api/admin/cards/:id — fetch full card data for editing
+app.get("/api/admin/cards/:id", requireAdmin, async (req, res) => {
+  const card = await prisma.card.findUnique({ where: { id: req.params.id } })
+  if (!card) return res.status(404).json({ error: "Card not found" })
+  res.json(card)
+})
+
+// POST /api/admin/bulk-import — import multiple cards at once
+app.post("/api/admin/bulk-import", requireAdmin, async (req, res) => {
+  try {
+    const cards = req.body.cards
+    if (!Array.isArray(cards)) return res.status(400).json({ error: "Expected cards array" })
+
+    const results = { created: 0, updated: 0, failed: [] }
+    for (const card of cards) {
+      try {
+        await prisma.card.upsert({
+          where:  { id: card.id },
+          update: card,
+          create: card,
+        })
+        results.updated++
+      } catch (e) {
+        results.failed.push({ id: card.id, error: e.message })
+      }
+    }
+    res.json(results)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
 
 // Middleware that checks the admin password from a header
 function requireAdmin(req, res, next) {
