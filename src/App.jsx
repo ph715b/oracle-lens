@@ -4,6 +4,8 @@ import CardPage from "./pages/CardPage"
 import Landing from "./pages/Landing"
 import Advanced from "./pages/Advanced"
 import Syntax from "./pages/Syntax"
+import Admin from "./pages/Admin"
+
 
 function App() {
   const navigate = useNavigate()
@@ -51,7 +53,8 @@ function App() {
           <Route path="/cards/:slug" element={<CardPage />} />
           <Route path="/api"         element={<div style={{ color: "var(--text-secondary)" }}>API docs coming soon...</div>} />
           <Route path="/advanced"    element={<Advanced />} />
-          <Route path="/syntax" element={<Syntax />} />
+          <Route path="/syntax"      element={<Syntax />} />
+          <Route path="/admin"       element={<Admin />} />
         </Routes>
       </main>
     </div>

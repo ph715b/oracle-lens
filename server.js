@@ -3,6 +3,8 @@ import cors from "cors"
 import { PrismaClient } from "./src/generated/prisma/index.js"
 import path from "path"
 import { fileURLToPath } from "url"
+// POST /api/admin/upload-image — upload card image to R2
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -153,6 +155,81 @@ app.get("/api/search", async (req, res) => {
     pageSize,
     totalPages: Math.ceil(filteredTotal / pageSize),
   })
+})
+
+// ---- ADMIN ROUTES ----
+
+// Middleware that checks the admin password from a header
+function requireAdmin(req, res, next) {
+  const password = req.headers["x-admin-password"]
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Unauthorized" })
+  }
+  next()
+}
+
+// POST /api/admin/cards — create or update a card
+app.post("/api/admin/cards", requireAdmin, async (req, res) => {
+  try {
+    const card = req.body
+    // Upsert — create if doesn't exist, update if it does
+    const result = await prisma.card.upsert({
+      where:  { id: card.id },
+      update: card,
+      create: card,
+    })
+    res.json(result)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+// DELETE /api/admin/cards/:id — delete a card
+app.delete("/api/admin/cards/:id", requireAdmin, async (req, res) => {
+  try {
+    await prisma.card.delete({ where: { id: req.params.id } })
+    res.json({ success: true })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+const s3 = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId:     process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+  },
+})
+
+app.post("/api/admin/upload-image", requireAdmin, express.raw({ type: "*/*", limit: "10mb" }), async (req, res) => {
+  try {
+    const slug = req.query.slug
+    const ext  = req.query.ext || "png"
+    if (!slug) return res.status(400).json({ error: "Missing slug" })
+
+    const key = `cards/${slug}.${ext}`
+    const contentType = {
+      png:  "image/png",
+      jpg:  "image/jpeg",
+      jpeg: "image/jpeg",
+      webp: "image/webp",
+      avif: "image/avif",
+    }[ext.toLowerCase()] || "image/png"
+
+    await s3.send(new PutObjectCommand({
+      Bucket: process.env.CLOUDFLARE_R2_BUCKET,
+      Key: key,
+      Body: req.body,
+      ContentType: contentType,
+    }))
+
+    const url = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`
+    res.json({ url })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
 })
 
 // GET /api/sets — return all sets
