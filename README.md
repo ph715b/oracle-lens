@@ -1,13 +1,18 @@
 # Oracle Lens
 
-An open source card database and browser for Riftbound, inspired by Scryfall.
+An open source card database, search engine, and public API for Riftbound: League of Legends TCG.
+
+## Vision
+
+Oracle Lens aims to be the most powerful and accessible Riftbound card resource for both players and developers. Built in the open, for the community.
 
 ## Features
 - Browse and search every Riftbound card
-- Filter by type, domain, rarity, and set
+- Advanced search with powerful filter options
+- Search syntax for power users (e.g. `t:champion d:fury energy<=3`)
 - Full card details including cost, keywords, card text, and artwork
-- Click any card to see its full detail page
-- Public API for developers to build their own Riftbound tools
+- Public REST API — free for any developer to build on
+- Open source — contribute card data, features, or bug fixes
 
 ## Tech Stack
 - React + Vite + Tailwind CSS
@@ -38,6 +43,7 @@ CLOUDFLARE_R2_BUCKET="oracle-lens-cards"
 CLOUDFLARE_R2_PUBLIC_URL="your_public_bucket_url"
 CLOUDFLARE_R2_ACCESS_KEY_ID="your_access_key_id"
 CLOUDFLARE_R2_SECRET_ACCESS_KEY="your_secret_access_key"
+ADMIN_PASSWORD="your_admin_password"
 \`\`\`
 
 2. Run database migrations:
@@ -58,44 +64,49 @@ node server.js
 
 5. Open your browser at http://localhost:5173
 
-## API Endpoints
+## Public API
 
+Oracle Lens exposes a free public REST API for developers building Riftbound tools.
+
+### Endpoints
 \`\`\`
-GET /cards              — Returns all cards
-GET /cards/:slug        — Returns a single card by slug
-GET /search             — Search and filter cards
-GET /sets               — Returns all sets
+GET /api/cards              — All cards
+GET /api/cards/:slug        — Single card by slug
+GET /api/search             — Search and filter cards
+GET /api/sets               — All sets
 \`\`\`
 
 ### Search Parameters
 \`\`\`
-/search?name=annie
-/search?type=Champion
-/search?domain=Fury
-/search?rarity=Rare
-/search?set=OGS
+name, type, domain, rarity, set
+cardText, flavorText, keyword, tag, artist, cardNumber
+energyCostMin, energyCostMax, energyCostExact
+powerCostMin, powerCostMax, powerCostExact
+mightMin, mightMax, mightExact
+legalStandard, legalCasual
+sortBy, order, page, limit
 \`\`\`
+
+### Search Syntax
+Oracle Lens supports a powerful search syntax for advanced queries:
+\`\`\`
+t:champion          → Champion type cards
+d:fury              → Fury domain cards
+r:epic              → Epic rarity
+energy<=3           → Energy cost 3 or less
+might>=5            → Might 5 or more
+tag:annie           → Annie cards
+kw:assault          → Cards with Assault keyword
+text:damage         → Card text contains damage
+-t:spell            → Exclude spells
+\`\`\`
+
+Full syntax guide available at /syntax on the live site.
 
 ## Uploading Card Images
 \`\`\`bash
 node upload-image.js <card-slug> ./images/<filename>.png
 \`\`\`
-
-## Card Schema
-
-Each card includes the following fields:
-- `id`, `slug`, `name` — identifiers
-- `set`, `setName`, `number` — set information
-- `types` — array of card types (Champion, Legend, Unit, Token, Spell, Signature, Rune, Gear, Battlefield)
-- `domains` — array of domains (Fury, Calm, Mind, Body, Chaos, Order)
-- `tags` — array of tags (champion name, region, race, etc.)
-- `rarity` — Common, Uncommon, Rare, Epic, AlternateArt, Promo, Champion
-- `energyCost`, `powerCost`, `alternateCost` — cost information
-- `might`, `mightBonus` — combat stats
-- `huntValue`, `levelThreshold`, `levelAbility` — XP and level mechanics
-- `cardText`, `flavorText`, `keywords` — card text
-- `imageUrl`, `imageArtist` — artwork
-- `legalStandard`, `legalCasual` — legality
 
 ## Sets
 | Code | Name | Cards |
@@ -106,10 +117,10 @@ Each card includes the following fields:
 | UNL | Unleashed | 219 |
 
 ## Contributing
-Contributions are welcome! If you want to add card data, fix a bug, or suggest
-a feature feel free to open an issue or pull request.
+Contributions are welcome! Whether you want to add card data, fix a bug, build a new feature, or improve the API — open an issue or pull request on GitHub.
 
 ## Legal
-Oracle Lens was created under Riot Games' "Legal Jibber Jabber" policy using
-assets owned by Riot Games. Riot Games does not endorse or sponsor this project.
-Card names, artwork, and game data are the property of Riot Games.
+Oracle Lens is unofficial fan content created under Riot Games' "Legal Jibber Jabber" policy.
+Riftbound and the League of Legends Universe are the intellectual property of Riot Games, Inc.
+All card names, artwork, and game data are copyright Riot Games.
+Oracle Lens is not produced by, affiliated with, or endorsed by Riot Games.
