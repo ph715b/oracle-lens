@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { getCard } from "../api"
 import DOMAIN_SYMBOLS, { RECYCLE_SYMBOL, MIGHT_SYMBOL, EXHAUST_SYMBOL } from "../data/domains"
+import { getCard, getCardPrintings } from "../api"
+
 
 // Renders card text with inline symbol replacements
 function renderCardText(text) {
@@ -35,6 +36,9 @@ function CardPage() {
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [printings, setPrintings] = useState([])
+  const [hoveredPrinting, setHoveredPrinting] = useState(null)
+  const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -42,7 +46,12 @@ function CardPage() {
       try {
         const data = await getCard(slug)
         if (data.error) setError("Card not found")
-        else setCard(data)
+        else {
+          setCard(data)
+          // Fetch all printings of this card
+          const printingsData = await getCardPrintings(slug)
+          setPrintings(printingsData)
+        }
       } catch (e) {
         setError("Failed to load card.")
       }
@@ -308,10 +317,105 @@ function CardPage() {
             </span>
           </div>
 
+          {/* ---- PRINTINGS ---- */}
+          {printings.length > 1 && (
+            <div className="flex flex-col gap-3 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
+              <span className="text-xs uppercase tracking-widest" style={{ color: "var(--text-dim)" }}>
+                All Printings
+              </span>
+              <div className="flex flex-col gap-2">
+                {printings.map((p) => (
+                  <div
+                    key={p.id}
+                    className="relative"
+                    onMouseEnter={(e) => {
+                      setHoveredPrinting(p)
+                      setHoverPos({ x: e.clientX, y: e.clientY })
+                    }}
+                    onMouseLeave={() => setHoveredPrinting(null)}
+                    onMouseMove={(e) => setHoverPos({ x: e.clientX, y: e.clientY })}
+                  >
+                    <div
+                      onClick={() => {
+                        if (p.slug !== slug) {
+                          navigate(`/cards/${p.slug}`)
+                          setHoveredPrinting(null)
+                        }
+                      }}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg transition-colors"
+                      style={{
+                        background: p.slug === slug ? "var(--accent-dim)" : "var(--bg-card)",
+                        border: p.slug === slug ? "1px solid rgba(245,158,11,0.3)" : "1px solid var(--border)",
+                        cursor: p.slug === slug ? "default" : "pointer",
+                      }}
+                      onMouseEnter={e => {
+                        if (p.slug !== slug) e.currentTarget.style.borderColor = "var(--accent)"
+                      }}
+                      onMouseLeave={e => {
+                        if (p.slug !== slug) e.currentTarget.style.borderColor = "var(--border)"
+                      }}
+                    >
+                      {/* Set info */}
+                      <div className="flex items-center gap-3">
+                        {p.imageUrl && (
+                          <img
+                            src={p.imageUrl}
+                            alt={p.name}
+                            style={{ width: "32px", borderRadius: "4px" }}
+                          />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                            {p.setName}
+                          </p>
+                          <p className="text-xs" style={{ color: "var(--text-dim)" }}>
+                            #{p.number} · {p.rarity}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Current indicator */}
+                      {p.slug === slug && (
+                        <span className="text-xs px-2 py-0.5 rounded" style={{ background: "var(--accent)", color: "var(--bg-primary)" }}>
+                          Viewing
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ---- HOVER POPUP ---- */}
+          {hoveredPrinting && hoveredPrinting.imageUrl && hoveredPrinting.slug !== slug && (
+            <div
+              style={{
+                position: "fixed",
+                left: hoverPos.x + 20,
+                top: hoverPos.y - 100,
+                zIndex: 1000,
+                pointerEvents: "none",
+              }}
+            >
+              <img
+                src={hoveredPrinting.imageUrl}
+                alt={hoveredPrinting.name}
+                style={{
+                  width: "200px",
+                  borderRadius: "12px",
+                  boxShadow: "0 25px 60px rgba(0,0,0,0.8)",
+                }}
+              />
+            </div>
+          )}
+
         </div>
       </div>
     </div>
   )
 }
+
+
 
 export default CardPage

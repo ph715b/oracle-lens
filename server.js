@@ -186,6 +186,40 @@ app.get("/api/admin/cards/:id", requireAdmin, async (req, res) => {
   res.json(card)
 })
 
+// GET /api/cards/:slug/printings — find all printings of the same card
+app.get("/api/cards/:slug/printings", async (req, res) => {
+  try {
+    // First get the card to find its name
+    const card = await prisma.card.findUnique({
+      where: { slug: req.params.slug },
+      select: { name: true, id: true }
+    })
+    if (!card) return res.status(404).json({ error: "Card not found" })
+
+    // Find all cards with the same name (different printings)
+    const printings = await prisma.card.findMany({
+      where: {
+        name: card.name,
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        set: true,
+        setName: true,
+        number: true,
+        rarity: true,
+        imageUrl: true,
+      },
+      orderBy: [{ set: "asc" }, { number: "asc" }]
+    })
+
+    res.json(printings)
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
 // POST /api/admin/bulk-import — import multiple cards at once
 app.post("/api/admin/bulk-import", requireAdmin, async (req, res) => {
   try {

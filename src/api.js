@@ -40,3 +40,8 @@ export async function searchCards(filters = {}) {
   const res = await fetch(`${API_URL}/search?${params}`)
   return res.json()
 }
+
+export async function getCardPrintings(slug) {
+  const res = await fetch(`${API_URL}/cards/${slug}/printings`)
+  return res.json()
+}
