@@ -402,7 +402,7 @@ function CardPage() {
                 src={hoveredPrinting.imageUrl}
                 alt={hoveredPrinting.name}
                 style={{
-                  width: "200px",
+                  width: "300px",
                   borderRadius: "12px",
                   boxShadow: "0 25px 60px rgba(0,0,0,0.8)",
                 }}
