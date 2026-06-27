@@ -19,6 +19,8 @@ model Card {
   id          String   @id                // e.g. "OGN-001"
   slug        String   @unique            // e.g. "master-yi" (for URLs)
   name        String                      // Full card name
+  baseName    String?                     // Base card name shared across all printings e.g. "Ahri, Nine-Tailed Fox"
+  variant     String?                     // Variant suffix e.g. "Overnumbered", "Signature", "Alternate Art"
 
   // ---- SET INFO ----
   set         String                      // Set code e.g. "OGN"

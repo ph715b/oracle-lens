@@ -13,7 +13,7 @@ const SETS     = [
 const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:3001/api"
 
 const blankCard = () => ({
-  id: "", slug: "", name: "",
+  id: "", slug: "", name: "", baseName: "", variant: "",
   set: "OGN", setName: "Origins", number: "",
   types: [], domains: [], tags: "",
   rarity: "Common",
@@ -99,8 +99,27 @@ export default function Admin() {
   // ---- FORM HELPERS ----
   const updateName = (name) => {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
-    setCard(c => ({ ...c, name, slug }))
+    setCard(c => ({
+      ...c,
+      name,
+      slug,
+      // Auto-set baseName from name if no variant is set
+      baseName: c.variant ? c.baseName : name,
+    }))
   }
+  
+  const updateVariant = (variant) => {
+    setCard(c => ({
+      ...c,
+      variant,
+      // Auto-generate full name from baseName + variant
+      name: variant ? `${c.baseName || c.name} (${variant})` : (c.baseName || c.name),
+      slug: variant
+        ? `${(c.baseName || c.name).toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${variant.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
+        : (c.baseName || c.name).toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    }))
+  }
+
   const updateNumber = (number) => setCard(c => ({ ...c, number, id: `${c.set}-${number}` }))
   const updateSet = (setCode) => {
     const setObj = SETS.find(s => s.code === setCode)
@@ -142,6 +161,8 @@ export default function Admin() {
 
       const payload = {
         ...card,
+        baseName: card.baseName || card.name,  // fallback to name if not set
+        variant:  card.variant || null,
         tags:        Array.isArray(card.tags)     ? card.tags     : card.tags.split(",").map(t => t.trim()).filter(Boolean),
         keywords:    Array.isArray(card.keywords) ? card.keywords : card.keywords.split(",").map(k => k.trim()).filter(Boolean),
         energyCost:  card.energyCost === "" ? null : parseInt(card.energyCost),
@@ -179,6 +200,8 @@ export default function Admin() {
     // Convert arrays to comma-separated strings for the form
     setCard({
       ...data,
+      baseName:   data.baseName || data.name,
+      variant:    data.variant || "",
       tags:       data.tags.join(", "),
       keywords:   data.keywords.join(", "),
       energyCost: data.energyCost ?? "",
@@ -297,6 +320,45 @@ export default function Admin() {
               <input value={card.name} onChange={e => updateName(e.target.value)}
                 className="rounded-lg px-3 py-2 focus:outline-none" style={inputStyle} />
             </div>
+            
+            {/* BASE NAME */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={labelStyle}>
+              Base Name
+              <span className="ml-2 normal-case" style={{ color: "var(--text-dim)" }}>
+                (auto-filled from name)
+              </span>
+            </label>
+            <input
+              value={card.baseName}
+              onChange={e => setCard(c => ({ ...c, baseName: e.target.value }))}
+              placeholder="e.g. Ahri, Nine-Tailed Fox"
+              className="rounded-lg px-3 py-2 focus:outline-none"
+              style={inputStyle}
+            />
+          </div>
+
+          {/* VARIANT */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest" style={labelStyle}>
+              Variant
+              <span className="ml-2 normal-case" style={{ color: "var(--text-dim)" }}>
+                (leave blank for normal printing)
+              </span>
+            </label>
+            <select
+              value={card.variant || ""}
+              onChange={e => updateVariant(e.target.value)}
+              className="rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+              style={inputStyle}
+            >
+              <option value="">Normal</option>
+              <option value="Overnumbered">Overnumbered</option>
+              <option value="Signature">Signature</option>
+              <option value="Alternate Art">Alternate Art</option>
+              <option value="Metal">Metal</option>
+            </select>
+          </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs uppercase tracking-widest" style={labelStyle}>Set</label>
               <select value={card.set} onChange={e => updateSet(e.target.value)}

@@ -189,27 +189,25 @@ app.get("/api/admin/cards/:id", requireAdmin, async (req, res) => {
 // GET /api/cards/:slug/printings — find all printings of the same card
 app.get("/api/cards/:slug/printings", async (req, res) => {
   try {
-    // First get the card to find its name
     const card = await prisma.card.findUnique({
       where: { slug: req.params.slug },
-      select: { name: true, id: true }
+      select: { name: true, baseName: true, id: true }
     })
     if (!card) return res.status(404).json({ error: "Card not found" })
 
-    // Find all cards with the same name (different printings)
+    const searchName = card.baseName || card.name
+
     const printings = await prisma.card.findMany({
       where: {
-        name: card.name,
+        OR: [
+          { baseName: searchName },
+          { name: searchName },
+        ]
       },
       select: {
-        id: true,
-        slug: true,
-        name: true,
-        set: true,
-        setName: true,
-        number: true,
-        rarity: true,
-        imageUrl: true,
+        id: true, slug: true, name: true,
+        set: true, setName: true, number: true,
+        rarity: true, variant: true, imageUrl: true,
       },
       orderBy: [{ set: "asc" }, { number: "asc" }]
     })

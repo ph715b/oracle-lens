@@ -369,7 +369,7 @@ function CardPage() {
                             {p.setName}
                           </p>
                           <p className="text-xs" style={{ color: "var(--text-dim)" }}>
-                            #{p.number} · {p.rarity}
+                            #{p.number} · {p.rarity} {p.variant ? `· ${p.variant}` : ""}
                           </p>
                         </div>
                       </div>
